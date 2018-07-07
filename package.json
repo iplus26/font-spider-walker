@@ -2,7 +2,10 @@
   "name": "font-spider-walker",
   "version": "1.0.0",
   "description": "Walk through source codes to dynamicly generated the webfont needed.",
-  "main": "index.js",
+  "main": "bin/index.js",
+  "bin": {
+    "fsw": "./bin/index.js"
+  },
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.16.0",

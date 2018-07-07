@@ -8,14 +8,14 @@ const fs = require('fs'),
 
 const defaultFileTypes = 'js|jsx|ts|tsx',
     defaultFontName = 'MyFont',
-    defaultFontPath = './font/MyFont',
+    defaultFontPath = `./font/`,
     defaultSrcPath = './src';
 
 program
     .version(require('../package.json').version)
     .option('-s, --src [source]', '源码文件夹的路径', defaultSrcPath)
     .option('-f, --fontName [font name]', '字体名称', defaultFontName)
-    .option('--fontpath [font path]', '字体路径', defaultFontPath)
+    .option('--fontPath [font path]', '字体路径', defaultFontPath)
     .option('-t, --filetypes [file types]', '接受的文件后缀,用|连接', defaultFileTypes)
     .parse(process.argv);
 
@@ -25,6 +25,8 @@ const {
         fontPath = defaultFontPath,
         fontName = defaultFontName,
 } = program
+
+const tempFilePath = path.resolve('./') + '\/fsw.html';
 
 const fileExtReg = new RegExp(`^\.${filetypes}`, 'i')
 
@@ -97,20 +99,21 @@ function walk(dir) {
  * @param {string} allChinese 
  */
 function generateFakeHtml(allChinese, callback) {
+    const font = path.join(fontPath, fontName)
     const template = `<html><head><style>@font-face {
         font-family: '${fontName}';
-        src: url('./font/${fontName}.eot');
+        src: url('${font}.eot');
         src:
-          url('./font/${fontName}.eot?#font-spider') format('embedded-opentype'),
-          url('./font/${fontName}.woff2') format('woff2'),
-          url('./font/${fontName}.woff') format('woff'),
-          url('./font/${fontName}.ttf') format('truetype'),
-          url('./font/${fontName}.svg') format('svg');
+          url('${font}.eot?#font-spider') format('embedded-opentype'),
+          url('${font}.woff2') format('woff2'),
+          url('${font}.woff') format('woff'),
+          url('${font}.ttf') format('truetype'),
+          url('${font}.svg') format('svg');
         font-weight: normal;
         font-style: normal;
       } .chinese { font-family: '${fontName}'; }</style>
       </head><body><div class="chinese">${allChinese}`
-    fs.writeFile('./test.html', template,
+    fs.writeFile(tempFilePath, template,
         err => {
             if (err) {
                 console.error(err)
@@ -119,6 +122,7 @@ function generateFakeHtml(allChinese, callback) {
 
             log('html file generated!')
 
+            log('交给字蛛生成字体，源字体位于', font + '.ttf')
             callback()
         })
 }
@@ -155,14 +159,14 @@ function log(title, message) {
  * 
  * @param {string} htmlFile
  */
-function runFontSpider(htmlFile = path.resolve('./test.html')) {
+function runFontSpider(htmlFile = tempFilePath) {
     fontSpider.spider(htmlFile, {
         silent: false
-    }).then(function (webFonts) {
+    }).then(function(webFonts) {
         return fontSpider.compressor(webFonts, {
             backup: true
         });
-    }).then(function (webFonts) {
+    }).then(function(webFonts) {
         console.log(webFonts)
     })
 }

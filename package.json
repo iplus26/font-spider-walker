@@ -1,6 +1,6 @@
 {
   "name": "@tencent/fsw",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Walk through source codes to dynamicly generated the webfont needed.",
   "main": "bin/index.js",
   "bin": {

@@ -1,6 +1,9 @@
-# FSW (font-spider-walker) ![font-spider-walker NPM version](https://img.shields.io/npm/v/font-spider-walker.svg?style=flat-square)](https://www.npmjs.com/package/font-spider-walker)
+# FSW (font-spider-walker)
 
 遍历你的代码目录，借助于 font-spider 动态生成你所需要的中文字体
+
+
+[![font-spider-walker NPM version](https://img.shields.io/npm/v/font-spider-walker.svg?style=flat-square)](https://www.npmjs.com/package/font-spider-walker)
 
 
 

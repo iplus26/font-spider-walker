@@ -9,13 +9,15 @@ const fs = require('fs'),
 const defaultFileTypes = 'js|jsx|ts|tsx',
     defaultFontName = 'MyFont',
     defaultFontPath = `./font/`,
-    defaultSrcPath = './src';
+    defaultSrcPath = './src',
+    defaultInclude = 'chinese|number|english|symbol';
 
 program
     .version(require('../package.json').version)
     .option('-s, --src [source]', '源码文件夹的路径', defaultSrcPath)
     .option('-f, --fontName [font name]', '字体名称', defaultFontName)
     .option('--fontPath [font path]', '字体路径', defaultFontPath)
+    .option('--searchRange [search range]', '默认检索所有中文，数字，英文和特殊字符，可自行指定搜索类型，用|连接', defaultInclude)
     .option('-t, --filetypes [file types]', '接受的文件后缀,用|连接', defaultFileTypes)
     .parse(process.argv);
 
@@ -24,6 +26,7 @@ const {
         filetypes = defaultFileTypes,
         fontPath = defaultFontPath,
         fontName = defaultFontName,
+        searchRange = defaultInclude
 } = program
 
 const tempFilePath = path.resolve('./') + '\/fsw.html';
@@ -32,13 +35,35 @@ const fileExtReg = new RegExp(`^\.${filetypes}`, 'i')
 
 doJob(src)
 
+const regMap = {
+    'chinese': /[^\x00-\x7F]/g,
+    'number': /[0-9]/g,
+    'english': /[A-Za-z]/g,
+    'symbol': /[`~!@#$%^&*()_+<>?:"{},.\/;'[\]]+/img,
+}
 /**
  * filter Chinese characters
  * @param {string} str 
  */
-function getChineseChr(str) {
-    const matched = str.match(/[^\x00-\x7F]/g);
-    return Array.isArray(matched) ? matched.filter((ch, pos) => matched.indexOf(ch) === pos).join('') : ''
+function getWordsChr(str) {
+    const searchType = searchRange.split('|');
+    const result = searchType.map(regKey => {
+
+        if (defaultInclude.indexOf(regKey) === -1) {
+            console.log('存在不支持的搜索字符类型 ->>>>> ', regKey);
+            return '';
+        } else {
+            const reg = regMap[regKey];
+            let strWithoutSpace = str.replace(/\s+/g, '');
+            const matched = strWithoutSpace.match(reg);
+            return Array.isArray(matched) ? matched.filter((ch, pos) => matched.indexOf(ch) === pos).join('') : ''
+        }
+    });
+
+    // 去重
+    const strOfResult = result.join('').replace(/\s+/g, '');
+
+    return [...new Set(strOfResult.split(''))].join('');
 }
 
 /**
@@ -72,7 +97,7 @@ function walk(dir) {
                                             reject(err)
                                             return
                                         }
-                                        resolve(getChineseChr(content))
+                                        resolve(getWordsChr(content))
                                     })
                                 } else {
                                     resolve('')
@@ -138,7 +163,7 @@ function doJob(_dir) {
          * @param {string} content
          */
         content => {
-            log(`在你的源码中我们找到了${content.length}个中国字`, content)
+            log(`在你的源码中我们找到了${content.length}个字符`, content)
 
             if (content.length) {
                 generateFakeHtml(content, runFontSpider)

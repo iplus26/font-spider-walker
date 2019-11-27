@@ -24,6 +24,7 @@ Usage: fsw [options]
     --fontPath [font path]        字体路径 (default: ./font/)
     -t, --filetypes [file types]  接受的文件后缀,用|连接 (default: js|jsx|ts|tsx)
     -h, --help                    output usage information
+    --searchRange [search Range]  搜索类型，用|连接 (default: chinese|english|number|symbol)
 ```
 
 
